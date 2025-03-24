@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoneyMate</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 10px;
+        }
+        .balance {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        input {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+        }
+        button {
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .income-btn, .expense-btn {
+            border: 2px solid;
+            width: 49%;
+            display: inline-block;
+        }
+        .income-btn {
+            border-color: green;
+        }
+        .expense-btn {
+            border-color: red;
+        }
+        .selected-income {
+            background-color: green;
+            color: white;
+        }
+        .selected-expense {
+            background-color: red;
+            color: white;
+        }
+        .transactions {
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .transaction {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+            border-bottom: 1px solid white;
+        }
+        .positive {
+            color: green;
+        }
+        .negative {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>MoneyMate</h1>
+        <div class="balance">
+            Balance: $<span id="balance">0</span>
+        </div>
+        
+        <input type="text" id="description" placeholder="Description">
+        <input type="text" id="amount" placeholder="Amount">
+
+        <div>
+            <button class="income-btn" id="incomeBtn">Income</button>
+            <button class="expense-btn" id="expenseBtn">Expense</button>
+        </div>
+
+        <button id="addTransaction">Add</button>
+
+        <div class="transactions" id="transactions"></div>
+    </div>
+
+    <script>
+        let balance = localStorage.getItem("balance") || "0";
+        let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+        let type = "income";
+
+        document.getElementById("balance").innerText = balance;
+
+        function updateLocalStorage() {
+            localStorage.setItem("balance", balance);
+            localStorage.setItem("transactions", JSON.stringify(transactions));
+        }
+
+        function renderTransactions() {
+            const transactionsContainer = document.getElementById("transactions");
+            transactionsContainer.innerHTML = "";
+            transactions.forEach(tx => {
+                const txElement = document.createElement("div");
+                txElement.className = "transaction";
+                txElement.innerHTML = `
+                    <span>${tx.description}</span>
+                    <span class="${tx.amount >= 0 ? 'positive' : 'negative'}">
+                        ${tx.amount >= 0 ? "+" : ""}$${Math.abs(tx.amount).toFixed(2)}
+                    </span>
+                `;
+                transactionsContainer.appendChild(txElement);
+            });
+        }
+
+        document.getElementById("incomeBtn").addEventListener("click", function() {
+            type = "income";
+            this.classList.add("selected-income");
+            document.getElementById("expenseBtn").classList.remove("selected-expense");
+        });
+
+        document.getElementById("expenseBtn").addEventListener("click", function() {
+            type = "expense";
+            this.classList.add("selected-expense");
+            document.getElementById("incomeBtn").classList.remove("selected-income");
+        });
+
+        document.getElementById("addTransaction").addEventListener("click", function() {
+            const description = document.getElementById("description").value;
+            const amount = parseFloat(document.getElementById("amount").value);
+            if (!description || isNaN(amount)) return;
+
+            const value = type === "expense" ? -amount : amount;
+            transactions.unshift({ description, amount: value });
+            balance = (parseFloat(balance) + value).toFixed(2);
+
+            document.getElementById("balance").innerText = balance;
+            document.getElementById("description").value = "";
+            document.getElementById("amount").value = "";
+
+            updateLocalStorage();
+            renderTransactions();
+        });
+
+        renderTransactions();
+    </script>
+
+</body>
+</html>
