@@ -230,6 +230,12 @@
             document.getElementById("expenseBtn").classList.remove("selected");
         });
 
+        document.getElementById("expenseBtn").addEventListener("click", function() {
+            type = "expense";
+            this.classList.add("selected");
+            document.getElementById("incomeBtn").classList.remove("selected");
+        });
+
         document.getElementById("addTransaction").addEventListener("click", function() {
             const description = document.getElementById("description").value.trim();
             const amount = parseFloat(document.getElementById("amount").value);
@@ -237,7 +243,7 @@
             if (!description || isNaN(amount)) return;
 
             const value = type === "expense" ? -amount : amount;
-            transactions.unshift({  // Меняем push() на unshift()
+            transactions.unshift({  // Добавление в начало списка
                 description, 
                 amount: value,
                 date: new Date().toISOString()
@@ -252,8 +258,8 @@
             renderTransactions();
         });
 
-
         renderTransactions();
     </script>
 </body>
 </html>
+
