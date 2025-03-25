@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MoneyMate</title>
     <style>
         :root {
@@ -28,6 +28,7 @@
             flex-direction: column;
             align-items: center;
             padding: 1rem;
+            overflow: hidden; /* Отключаем прокрутку страницы */
         }
 
         .container {
@@ -38,6 +39,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin: 2rem auto;
+            overflow: hidden; /* Отключаем прокрутку контейнера */
         }
 
         .balance {
@@ -243,7 +245,7 @@
             if (!description || isNaN(amount)) return;
 
             const value = type === "expense" ? -amount : amount;
-            transactions.unshift({  // Добавление в начало списка
+            transactions.unshift({ 
                 description, 
                 amount: value,
                 date: new Date().toISOString()
