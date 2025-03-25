@@ -1,93 +1,259 @@
-import { useState, useEffect } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoneyMate</title>
+    <style>
+        :root {
+            --primary-color: #fff;
+            --secondary-color: #333;
+            --accent-color: #4CAF50;
+            --error-color: #f44336;
+        }
 
-export default function Dashboard() {
-  const [balance, setBalance] = useState(() => {
-    return localStorage.getItem("balance") || "0";
-  });
-  const [transactions, setTransactions] = useState(() => {
-    return JSON.parse(localStorage.getItem("transactions")) || [];
-  });
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
-  const [type, setType] = useState("income");
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-  useEffect(() => {
-    localStorage.setItem("balance", balance);
-    localStorage.setItem("transactions", JSON.stringify(transactions));
-  }, [balance, transactions]);
+        body {
+            background-color: #000;
+            color: var(--primary-color);
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+        }
 
-  const addTransaction = () => {
-    if (!description || !amount) return;
-    const value = parseFloat(amount) * (type === "expense" ? -1 : 1);
-    const newTransaction = {
-      id: transactions.length + 1,
-      description,
-      amount: value,
-      date: new Date().toISOString().split("T")[0],
-    };
-    setTransactions([newTransaction, ...transactions]);
-    setBalance((prev) => (parseFloat(prev) + value).toString());
-    setDescription("");
-    setAmount("");
-  };
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+        }
 
-  return (
-    <div className="w-full h-screen flex flex-col items-center p-4 bg-black text-white">
-      <h1 className="text-3xl font-bold text-center text-white">MoneyMate</h1>
-      <div className="mt-4 p-4 w-full max-w-md rounded-lg">
-        <h2 className="text-lg text-white">Balance:</h2>
-        <span className="text-2xl font-bold text-white">${balance}</span>
-      </div>
-      <div className="mt-4 w-full max-w-md p-4 rounded-lg">
-        <h2 className="text-lg font-bold text-white">Add Transaction</h2>
-        <input
-          type="text"
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full p-2 mt-2 rounded text-white bg-transparent border border-white"
-        />
-        <input
-          type="text"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="w-full p-2 mt-2 rounded text-white bg-transparent border border-white"
-        />
-        <div className="flex justify-between mt-2">
-          <button
-            onClick={() => setType("income")}
-            className={`p-2 w-1/2 rounded border-2 border-green-500 transition-all duration-300 ${type === "income" ? "bg-green-500 text-white" : "bg-transparent text-white"}`}
-          >
-            Income
-          </button>
-          <button
-            onClick={() => setType("expense")}
-            className={`p-2 w-1/2 rounded border-2 border-red-500 transition-all duration-300 ${type === "expense" ? "bg-red-500 text-white" : "bg-transparent text-white"}`}
-          >
-            Expense
-          </button>
+        .balance {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .balance span {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        button {
+            cursor: pointer;
+            font-weight: 600;
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .type-btns {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            justify-content: space-between;
+        }
+
+        .income-btn, .expense-btn {
+            border: 2px solid;
+            flex: 1;
+        }
+
+        .income-btn {
+            border-color: var(--accent-color);
+        }
+
+        .expense-btn {
+            border-color: var(--error-color);
+        }
+
+        .selected {
+            background: var(--primary-color);
+            color: #000;
+        }
+
+        .transactions {
+            margin-top: 2rem;
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .transaction {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 1rem;
+        }
+
+        .transaction:last-child {
+            border-bottom: none;
+        }
+
+        .amount {
+            font-weight: 600;
+        }
+
+        .positive {
+            color: var(--accent-color);
+        }
+
+        .negative {
+            color: var(--error-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+                margin: 1rem auto;
+            }
+
+            .balance {
+                font-size: 1.8rem;
+            }
+
+            .transactions {
+                max-height: 200px;
+            }
+
+            .type-btns {
+                flex-direction: column;
+                gap: 0.5rem;
+                justify-content: center;
+            }
+
+            .income-btn, .expense-btn {
+                flex: 0;
+            }
+
+            button {
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MoneyMate</h1>
+        </header>
+        
+        <section class="balance">
+            <span>Balance: $<span id="balance">0</span></span>
+        </section>
+
+        <div class="form-group">
+            <input type="text" id="description" placeholder="Description" aria-label="Transaction description">
         </div>
-        <button
-          onClick={addTransaction}
-          className="w-full mt-2 p-2 border-2 border-white text-white rounded transition-all duration-300 hover:bg-white hover:text-black"
-        >
-          Add
-        </button>
-      </div>
-      <div className="mt-4 w-full max-w-md h-64 overflow-y-auto p-4 rounded-lg border border-white">
-        <h2 className="text-lg font-bold text-white">Transactions</h2>
-        <ul className="mt-2 space-y-2">
-          {transactions.map((tx) => (
-            <li key={tx.id} className="p-2 rounded flex justify-between shadow-lg text-white border border-white">
-              <span>{tx.description}</span>
-              <span className={tx.amount < 0 ? "text-green-400" : "text-red-400"}>
-                {tx.amount > 0 ? "+" : ""}${Math.abs(tx.amount).toFixed(2)}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
+
+        <div class="form-group">
+            <input type="number" id="amount" placeholder="Amount" aria-label="Transaction amount" step="0.01">
+        </div>
+
+        <div class="type-btns">
+            <button class="income-btn" id="incomeBtn">Income</button>
+            <button class="expense-btn" id="expenseBtn">Expense</button>
+        </div>
+
+        <button id="addTransaction">Add Transaction</button>
+
+        <div class="transactions" id="transactions"></div>
     </div>
-  );
-}
+
+    <script>
+        let balance = parseFloat(localStorage.getItem("balance") || "0");
+        let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+        let type = "income";
+
+        document.getElementById("balance").innerText = balance.toFixed(2);
+
+        function updateLocalStorage() {
+            localStorage.setItem("balance", balance);
+            localStorage.setItem("transactions", JSON.stringify(transactions));
+        }
+
+        function renderTransactions() {
+            const transactionsContainer = document.getElementById("transactions");
+            transactionsContainer.innerHTML = transactions.map(tx => `
+                <div class="transaction">
+                    <span>${tx.description}</span>
+                    <span class="amount ${tx.amount >= 0 ? 'positive' : 'negative'}">
+                        ${tx.amount >= 0 ? "+" : "-"}$${Math.abs(tx.amount).toFixed(2)}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById("incomeBtn").addEventListener("click", function() {
+            type = "income";
+            this.classList.add("selected");
+            document.getElementById("expenseBtn").classList.remove("selected");
+        });
+
+        document.getElementById("addTransaction").addEventListener("click", function() {
+            const description = document.getElementById("description").value.trim();
+            const amount = parseFloat(document.getElementById("amount").value);
+
+            if (!description || isNaN(amount)) return;
+
+            const value = type === "expense" ? -amount : amount;
+            transactions.unshift({  // Меняем push() на unshift()
+                description, 
+                amount: value,
+                date: new Date().toISOString()
+            });
+            balance += value;
+
+            document.getElementById("balance").innerText = balance.toFixed(2);
+            document.getElementById("description").value = "";
+            document.getElementById("amount").value = "";
+
+            updateLocalStorage();
+            renderTransactions();
+        });
+
+
+        renderTransactions();
+    </script>
+</body>
+</html>
